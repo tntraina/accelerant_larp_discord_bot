@@ -1,0 +1,14 @@
+call: area? effect target? cause?
+area: "by my voice" | "in this place" | "by your name" NAMED_TARGET
+effect: STATUS | DMG_VALUE "damage"
+target: "to" PROPERTY
+cause: "by" TRAIT
+STATUS: "death" | "drain" |"maim" |"paralyze" | "repel" | "root" | "silence" | "slam" |"slow" |"stricken" |"stun" |"weakness"
+DMG_VALUE: NUMBER
+PROPERTY: WORD
+TRAIT: WORD
+NAMED_TARGET: WORD
+%import common.WS
+%import common.WORD
+%import common.NUMBER
+%ignore WS
