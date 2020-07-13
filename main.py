@@ -15,7 +15,7 @@ class NPC:
     name = "Unnamed NPC"
 
     def __init__(self, name, vit=5, propertylist=[]):
-        self.stats['Vitality'] = vit
+        self.stats['vitality'] = vit
         for p in propertylist:
             self.properties.append(p)
         self.name = name
@@ -23,11 +23,15 @@ class NPC:
 
 npcs = []
 
-
-@bot.event
-async def on_ready():
-    print("Ready? FIGHT!")
-
+####
+#
+# General outline of the eval process:
+#   Isolate the target (all? targeted by name? Pick one at random?)
+#   Does to-trait nullify the attack?
+#   Is NPC immune to by-trait?
+#   Does attack apply status or reduce stat?
+#
+####
 
 def eval_accelerant_call(call_text):
     str_area = "their target"
@@ -67,7 +71,7 @@ def eval_accelerant_call(call_text):
         else:
             str_effect = parsed_data["effect"][0]
     elif isinstance(parsed_data['effect'], list):
-        str_effect = f'do {parsed_data["effect"][0]} damage'
+        str_effect = f'do {parsed_data["effect"][0]} damage to'
     print(parse_tree.pretty())
     return f'[[The character]] tried to {str_effect} {str_area} with {str_target} using {str_trait}.  ' + result
 
@@ -77,7 +81,8 @@ async def spawn(ctx):
     list_of_npcs = ['slime', 'goblin', 'robot', 'soldier']
     random.shuffle(list_of_npcs)
     creature_name = list_of_npcs[0]
-    npcs.append(NPC(name=creature_name[2:], propertylist=[creature_name[2:]]))
+    random_vit = random.randint(3, 15)
+    npcs.append(NPC(name=creature_name, vit=random_vit, propertylist=[creature_name]))
     status_update = f'{creature_name} appears!'
     await ctx.send(status_update)
 
@@ -85,15 +90,16 @@ async def spawn(ctx):
 @bot.command()
 async def view(ctx, *args):
     if len(npcs) > 0:
-        status_update = "You look around the battlefield and see "
+        status_update = "You look around the battlefield and see:"
         for n in npcs:
-            status_update = status_update + n.name + ", "
-        status_update = status_update[:-2]
+            status_update = status_update + f'\n\n{n.name}:' 
+            for s in n.stats.keys():
+                status_update = status_update + f'\n- {n.stats[s]} {s}'
+            status_update = status_update + f'\n Traits: {n.properties}'
     else:
         status_update = "The battlefield looks empty."
     await ctx.send(status_update)
-
-
+    
 @bot.command()
 async def call(ctx, *args):
     attacker_name = ctx.message.author.display_name
@@ -108,4 +114,4 @@ async def call(ctx, *args):
     await ctx.send(status_update)
 
 token_data = open("secret_stuff.txt","r").read()
-bot.run(token_date)
+bot.run(token_data)
