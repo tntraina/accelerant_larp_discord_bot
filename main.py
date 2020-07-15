@@ -10,16 +10,20 @@ accelerant = Lark(accelerant_grammar, start='call')
 bot = commands.Bot(command_prefix='>')
 
 class NPC:
-    stats = dict()
-    properties = []
-    name = "Unnamed NPC"
-
     def __init__(self, name, vit=5, propertylist=[]):
+        self.stats = dict()
         self.stats['vitality'] = vit
+        self.properties = []
         for p in propertylist:
             self.properties.append(p)
         self.name = name
-
+    def __str__(self):
+        rtn_val = f'{name}:'
+        for s in self.stats.keys():
+            rtn_val = rtn_val + f'\n - {s}: {self.stats[s]}'
+        rtn_val = rtn_val + f'Traits: {self.properties}'
+        return f'stats:{self.stats}, properties:{self.properties}, name:{self.name}'
+    __repr__=__str__
 
 npcs = []
 
@@ -50,7 +54,6 @@ def eval_accelerant_call(call_text):
             parsed_data[d.type] = d
 
     if 'area' in parsed_data.keys():
-        print("AoE implicated")
         if parsed_data['area'] == "by my voice" or parsed_data['area'] == "in this place":
             str_area = "all the creatures around them"
         elif parsed_data['area'][0].type == "NAMED_TARGET":
@@ -73,6 +76,7 @@ def eval_accelerant_call(call_text):
     elif isinstance(parsed_data['effect'], list):
         str_effect = f'do {parsed_data["effect"][0]} damage to'
     print(parse_tree.pretty())
+    print(parsed_data)
     return f'[[The character]] tried to {str_effect} {str_area} with {str_target} using {str_trait}.  ' + result
 
 @bot.command()
